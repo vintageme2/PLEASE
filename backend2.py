@@ -16,9 +16,9 @@ CORS(app)  # Allow requests from your HTML frontend
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8728723875:AAFVMkGY0D2L8wJQaKgNxP5h0Jw__xT375E")   # Set as env variable on your host
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "HERE")   # Set as env variable on your host
 
-CHAT_ID   = os.environ.get("CHAT_ID",   "2045562169")     # Set as env variable on your host
+CHAT_ID   = os.environ.get("CHAT_ID",   "THERE")     # Set as env variable on your host
 
 TG_API    = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
